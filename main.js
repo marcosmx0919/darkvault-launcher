@@ -13,7 +13,7 @@ let win, ms = null, session = null;
 function createWindow() {
   win = new BrowserWindow({
     width: 1000, height: 650, minWidth: 840, minHeight: 580, backgroundColor: '#000000',
-    title: 'DarkVault Launcher', autoHideMenuBar: true,
+    title: 'DarkVault Launcher', icon: path.join(__dirname, 'build', 'icon.png'), autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true }
   });
   win.loadFile('index.html');
