@@ -1,0 +1,116 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'">
+<title>DarkVault Launcher</title>
+<style>
+:root{--red:#e11d2e;--red2:#ff4757;--panel:#121212;--line:#2a2a2a;--mut:#a3a3a3}
+*{box-sizing:border-box;margin:0}body{background:#000;color:#fff;font:15px/1.5 'Segoe UI',system-ui,sans-serif;height:100vh;overflow:hidden;user-select:none}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer;border:0}
+#fx{position:fixed;inset:0;opacity:.5;pointer-events:none}
+.scr{display:none;position:relative;height:100vh;padding:28px 38px}.scr.on{display:block;animation:in .45s ease}
+@keyframes in{from{opacity:0;transform:translateY(12px)}}
+.logo{font:900 24px 'Segoe UI',Impact,sans-serif;letter-spacing:1px}.logo b{color:var(--red)}
+.btn{background:var(--red);color:#fff;font-weight:700;padding:12px 22px;border-radius:10px;position:relative;overflow:hidden;transition:.15s}
+.btn:hover{background:var(--red2);transform:translateY(-2px)}.btn:active{transform:scale(.97)}.btn:disabled{opacity:.5;transform:none}
+.btn::after{content:"";position:absolute;top:0;left:-70%;width:40%;height:100%;background:rgba(255,255,255,.35);transform:skewX(-20deg);transition:left .5s}.btn:hover::after{left:130%}
+.ghost{background:none;border:1px solid var(--line);padding:10px 18px;border-radius:10px;transition:.2s}.ghost:hover,.ghost.on{border-color:var(--red);color:var(--red2)}
+input,select{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 14px;width:100%}input:focus,select:focus{border-color:var(--red);outline:none}
+#login{display:none;place-items:center}#login.on{display:grid}
+.box{width:380px;background:rgba(18,18,18,.92);border:1px solid var(--line);border-radius:18px;padding:30px;display:grid;gap:12px}
+.tabs{display:flex;gap:8px}.tabs button{flex:1;background:#000;color:var(--mut);padding:9px;border-radius:10px}.tabs .on{background:var(--red);color:#fff}
+.err{color:var(--red2);font-size:13px;min-height:18px}
+.top{display:flex;justify-content:space-between;align-items:center}
+.chip{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:6px 16px}
+.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:22px;margin-top:22px}
+.card{background:rgba(18,18,18,.92);border:1px solid var(--line);border-radius:16px;padding:22px;display:grid;gap:12px;align-content:start}
+h2{font:900 20px 'Segoe UI',system-ui,sans-serif;letter-spacing:.5px}input[type=range]{accent-color:var(--red);padding:0}label{color:var(--mut);font-size:13px;display:grid;gap:5px}
+.seg{display:flex;gap:8px}.seg button{flex:1}
+#play{font-size:20px;padding:16px;margin-top:6px}
+.bar{height:6px;background:var(--line);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--red);transition:width .2s}
+#st{color:var(--mut);font-size:13px;min-height:20px}
+canvas#sk{width:128px;height:128px;image-rendering:pixelated;border:2px solid #000;border-radius:10px;background:#1a1a1a;justify-self:center}
+.hint{color:var(--mut);font-size:12px}
+.tabs2{display:flex;gap:6px}.tabs2 button{background:none;color:var(--mut);padding:8px 18px;border-radius:10px;transition:.2s}.tabs2 button:hover{color:#fff}.tabs2 .on{background:var(--red);color:#fff}
+.pane{display:none}.pane.on{display:block;animation:in .35s ease}
+.res{display:grid;gap:10px;max-height:340px;overflow:auto}.it{display:flex;gap:12px;align-items:center;background:#0b0b0b;border:1px solid var(--line);border-radius:12px;padding:10px;transition:.2s}.it:hover{border-color:var(--red)}
+.it img{width:44px;height:44px;border-radius:8px;background:#1a1a1a}.it div{flex:1;min-width:0}.it small{color:var(--mut);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style></head><body>
+<canvas id="fx"></canvas>
+
+<section class="scr on" id="login"><div class="box">
+ <div class="logo" style="text-align:center;font-size:30px">DARK<b>VAULT</b> LAUNCHER</div>
+ <div class="tabs"><button id="tl" class="on" onclick="tab('login')">Login</button><button id="tr" onclick="tab('reg')">Register</button></div>
+ <input id="em" type="email" placeholder="Correo de tu cuenta DarkVault"><input id="pw" type="password" placeholder="Contraseña">
+ <div class="err" id="err"></div>
+ <button class="btn" id="go" onclick="doAuth()">Entrar</button>
+ <div class="hint" style="text-align:center">Es la misma cuenta de la página web.</div>
+</div></section>
+
+<section class="scr" id="main">
+ <div class="top"><div class="logo">DARK<b>VAULT</b> LAUNCHER</div>
+  <div class="tabs2"><button class="on" data-p="pPlay" onclick="pane('pPlay')">Jugar</button><button data-p="pCont" onclick="pane('pCont')">Contenido</button><button data-p="pProf" onclick="pane('pProf')">Perfil</button></div>
+  <div class="chip"><span id="who"></span><button class="ghost" style="padding:4px 12px" onclick="api.site()">Web</button></div></div>
+ <div class="pane on" id="pPlay"><div class="card" style="max-width:560px;margin:26px auto 0">
+   <h2>Jugar</h2>
+   <label>Versión de Minecraft Java<select id="ver" onchange="srch()"></select></label>
+   <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="snap" style="width:auto" onchange="fillVers()">Mostrar snapshots y versiones antiguas</label>
+   <label style="display:flex;gap:8px;align-items:center"><input type="checkbox" id="fab" style="width:auto">Usar Fabric (necesario para mods y shaders)</label>
+   <label>Cuenta<div class="seg"><button class="ghost on" id="aP" onclick="acc('premium')">Microsoft (premium)</button><button class="ghost" id="aD" onclick="acc('demo')">Modo demo</button></div></label>
+   <div class="hint" id="ah">Inicia sesión con tu cuenta Microsoft que tiene Minecraft Java.</div>
+   <label><span>Memoria RAM: <b id="rv">4</b> GB</span><input type="range" id="ram" min="1" max="16" value="4" oninput="rv.textContent=this.value"></label>
+   <button class="btn" id="play" onclick="play()">JUGAR</button>
+   <div class="bar"><i id="pb"></i></div><div id="st"></div></div></div>
+ <div class="pane" id="pCont"><div class="card" style="margin-top:26px">
+   <h2>Contenido para <span id="cv" style="color:var(--red)"></span></h2>
+   <div class="seg"><button class="ghost on" data-c="mod" onclick="ctype('mod')">Mods</button><button class="ghost" data-c="shader" onclick="ctype('shader')">Shaders</button><button class="ghost" data-c="resourcepack" onclick="ctype('resourcepack')">Recursos</button></div>
+   <input id="cq" placeholder="Buscar…" oninput="clearTimeout(window.t1);window.t1=setTimeout(srch,400)">
+   <div class="res" id="res"></div><div class="hint" id="cm">Elige la versión en la pestaña Jugar. Los mods y shaders usan Fabric.</div></div></div>
+ <div class="pane" id="pProf"><div class="grid">
+  <div class="card"><h2>Skin</h2><canvas id="sk" width="64" height="64"></canvas>
+   <input type="file" id="sf" accept="image/png" onchange="pick(this)">
+   <div class="seg"><button class="ghost on" id="m1" onclick="mdl('classic')">Classic</button><button class="ghost" id="m2" onclick="mdl('slim')">Slim</button></div>
+   <button class="btn" onclick="apply()">Aplicar a mi cuenta Microsoft</button>
+   <button class="ghost" onclick="fromWeb()">Traer mi skin de DarkVault</button><div class="hint" id="sm">La skin debe ser un PNG de 64×64.</div></div>
+  <div class="card"><h2>Nombre de Minecraft</h2><input id="nk" maxlength="16" placeholder="Tu nick">
+   <button class="btn" onclick="setNick()">Cambiar nick</button><div class="hint" id="nm">Puedes cambiarlo una vez cada 30 días. Es el nombre que usarás en modo demo.</div></div>
+ </div></div>
+</section>
+
+<script>
+const $=s=>document.querySelector(s);let mode='login',mode2='demo',vers=[],skin=null,model='classic';
+mode2='premium';
+(function(){const c=$('#fx'),x=c.getContext('2d');let w,h,p;function s(){w=c.width=innerWidth;h=c.height=innerHeight;p=Array.from({length:40},()=>({x:Math.random()*w,y:Math.random()*h,s:6+Math.random()*12,v:.2+Math.random()*.5,a:.1+Math.random()*.4}))}s();onresize=s;
+(function t(){x.clearRect(0,0,w,h);p.forEach(b=>{b.y-=b.v;if(b.y<-20){b.y=h+20;b.x=Math.random()*w}x.fillStyle=`rgba(225,29,46,${b.a})`;x.fillRect(b.x,b.y,b.s,b.s)});requestAnimationFrame(t)})()})();
+function show(id){document.querySelectorAll('.scr').forEach(e=>e.classList.toggle('on',e.id==id))}
+function tab(m){mode=m;$('#tl').classList.toggle('on',m=='login');$('#tr').classList.toggle('on',m=='reg');$('#go').textContent=m=='login'?'Entrar':'Crear cuenta'}
+async function doAuth(){$('#err').textContent='';$('#go').disabled=true;
+ const r=await api.auth({mode,email:$('#em').value.trim(),password:$('#pw').value});$('#go').disabled=false;
+ if(r.error)return $('#err').textContent=r.error;
+ $('#who').textContent=(r.profile?.mc_nick||r.profile?.username||r.email);$('#nk').value=r.profile?.mc_nick||'';show('main');
+ vers=await api.versions();fillVers()}
+function fillVers(){const all=$('#snap').checked;$('#ver').innerHTML=vers.filter(v=>all||v.type=='release').map(v=>`<option value="${v.id}" data-t="${v.type}">${v.id}</option>`).join('')}
+async function acc(m){mode2=m;$('#aP').classList.toggle('on',m=='premium');$('#aD').classList.toggle('on',m=='demo');
+ $('#ah').textContent=m=='premium'?'Inicia sesión con tu cuenta Microsoft que tiene Minecraft Java.':'Modo demo: el juego oficial gratis, con las limitaciones de Mojang.';
+ if(m=='premium'){$('#st').textContent='Abriendo inicio de sesión de Microsoft…';const r=await api.microsoft();$('#st').textContent=r.error||('Sesión Microsoft: '+r.name)}}
+async function play(){const o=$('#ver').selectedOptions[0];if(!o)return;$('#play').disabled=true;$('#pb').style.width='0';$('#st').textContent='Preparando…';
+ const r=await api.play({version:o.value,type:o.dataset.t,mode:mode2,ram:+$('#ram').value,fabric:$('#fab').checked});
+ if(r.error){$('#st').textContent=r.error;$('#play').disabled=false}}
+api.onLog(d=>{if(d.total){$('#pb').style.width=Math.round(d.task/d.total*100)+'%';$('#st').textContent='Descargando '+d.kind+'…'}else if(d.text&&/launch|start/i.test(d.text))$('#st').textContent='¡Iniciando Minecraft!'});
+api.onClosed(()=>{$('#play').disabled=false;$('#st').textContent='Minecraft se cerró.';$('#pb').style.width='0'});
+function draw(src){const i=new Image();i.onload=()=>{if(i.width!=64||(i.height!=64&&i.height!=32)){$('#sm').textContent='La skin debe ser un PNG de 64×64.';skin=null;return}
+ const c=$('#sk').getContext('2d');c.imageSmoothingEnabled=false;c.clearRect(0,0,64,64);c.drawImage(i,8,8,8,8,0,0,64,64);c.drawImage(i,40,8,8,8,0,0,64,64);$('#sm').textContent='Skin lista.'};i.src=src}
+function pick(f){const r=new FileReader();r.onload=()=>{skin=r.result.split(',')[1];draw(r.result)};if(f.files[0])r.readAsDataURL(f.files[0])}
+function mdl(m){model=m;$('#m1').classList.toggle('on',m=='classic');$('#m2').classList.toggle('on',m=='slim')}
+async function apply(){if(!skin)return $('#sm').textContent='Primero elige una skin.';const r=await api.skin({data:skin,model});$('#sm').textContent=r.error||'Skin aplicada. Tarda unos segundos en verse.'}
+async function fromWeb(){const r=await api.webskin();if(r.error)return $('#sm').textContent=r.error;skin=r.data;mdl(r.model);draw('data:image/png;base64,'+r.data)}
+
+function pane(id){document.querySelectorAll('.pane').forEach(e=>e.classList.toggle('on',e.id==id));document.querySelectorAll('.tabs2 button').forEach(b=>b.classList.toggle('on',b.dataset.p==id));if(id=='pCont')srch()}
+let ct='mod';
+function ctype(t){ct=t;document.querySelectorAll('[data-c]').forEach(b=>b.classList.toggle('on',b.dataset.c==t));srch()}
+async function srch(){const v=$('#ver').value;if(!v)return;$('#cv').textContent=v;$('#res').innerHTML='<div class="hint">Buscando…</div>';
+ const r=await api.search({type:ct,q:$('#cq').value,version:v});if(r.error)return $('#res').innerHTML='<div class="hint">'+r.error+'</div>';
+ window.R=r;$('#res').innerHTML=r.length?r.map((x,i)=>`<div class="it"><img src="${x.icon||''}" alt=""><div><b>${x.title.replace(/</g,'&lt;')}</b><small>${x.desc.replace(/</g,'&lt;')}</small></div><button class="btn" style="padding:8px 16px" onclick="inst(${i},this)">Instalar</button></div>`).join(''):'<div class="hint">No hay resultados para esta versión.</div>'}
+async function inst(i,b){const x=R[i];b.disabled=true;b.textContent='…';const r=await api.install({id:x.id,type:x.type,version:$('#ver').value});
+ b.textContent=r.error?'Reintentar':'Instalado ✓';b.disabled=!r.error?true:false;$('#cm').textContent=r.error||'Listo. '+(x.type=='resourcepack'?'Actívalo en Opciones > Paquetes de recursos.':'Se instaló con Fabric; se activa solo al jugar.');
+ if(!r.error&&x.type!='resourcepack')$('#fab').checked=true}
+async function setNick(){const r=await api.nick({nick:$('#nk').value.trim()});$('#nm').textContent=r.error||'Nick cambiado. El próximo cambio será en 30 días.';if(r.profile)$('#who').textContent=r.profile.mc_nick||r.profile.username}
+</script></body></html>
