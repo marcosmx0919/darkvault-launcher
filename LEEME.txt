@@ -1,0 +1,3 @@
+DARKVAULT LAUNCHER
+Prueba local: 1) instala Node.js LTS  2) pega tu clave anon en config.json  3) npm install  4) npm start
+Publicar en GitHub: ver los pasos del chat (el .exe se genera solo con GitHub Actions).
